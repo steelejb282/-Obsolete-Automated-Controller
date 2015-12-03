@@ -1,0 +1,584 @@
+void initPreAnalysis() {
+
+  clearLine(LCD_Y);
+
+  int hold = 1;
+
+  setScreen("Choose a Pokemon", 0, 0, 0, STOP);
+
+  SearchPokemonNum(2, 2, 1);
+
+  setScreen("Is this the correct", 0, 0, 0, STOP);
+  setScreen("Pokemon?", 0, 0, 1, STOP);
+  setScreen("      A: Confirm", 0, 2, 2, STOP);
+  setScreen("      B: Cancel", 0, 2, 3, STOP);
+
+  lcd.setCursor(9, 1);
+  lcd.write(Pokemon);
+
+  while (hold) {
+
+    button();
+
+    if (Press[a]) {
+
+      GenderSelect();
+    }
+    else if (Press[b]) {
+
+      initPreAnalysis();
+    }
+    else if (Press[left]) {
+
+      hold = 0;
+      MenuBack = 1;
+    }
+  }
+
+  if (MenuBack) {
+
+    routineMenu(ANALYSIS);
+  }
+}
+
+void GenderSelect() {
+
+  int hold            = 1;
+  int GenderContinue  = 0;
+
+  GenderArray[MALE]   = 0;
+  GenderArray[FEMALE] = 0;
+  GenderArray[EITHER] = 1;
+
+  if (Gender[MALE] == 0 || Gender[FEMALE] == 0) {
+
+    AbilitySelect();
+  }
+  else {
+
+    clearLine(LCD_Y);
+
+    setScreen("Select Gender", 0, 0, 0, STOP);
+    setScreen("Male", 0, 2, 1, STOP);
+    setScreen("Female", 0, 2, 2, STOP);
+    setScreen("Either", 0, 2, 3, STOP);
+
+    setCharacter(UPWARD, 0, 1);
+    setCharacter(RIGHTWARD, 0, 2);
+    setCharacter(DOWNWARD, 0, 3);
+
+    while (hold) {
+
+      button();
+
+      if (Press[a] && GenderContinue) {
+
+        AbilitySelect();
+      }
+      else if (Press[b]) {
+
+        initPreAnalysis();
+      }
+      else if (Press[up]) {
+
+        setScreen("Male", 0, 2, 1, STOP);
+        setCharacter(UPWARD, 0, 1);
+
+        setScreen("        ", 0, 0, 2, STOP);
+        setScreen("        ", 0, 0, 3, STOP);
+
+        GenderChoice = MALE;
+
+        GenderContinue = 1;
+      }
+      else if (Press[right]) {
+
+        setScreen("Female", 0, 2, 2, STOP);
+        setCharacter(RIGHTWARD, 0, 2);
+
+        setScreen("      ", 0, 0, 1, STOP);
+        setScreen("        ", 0, 0, 3, STOP);
+
+        GenderChoice = FEMALE;
+
+        GenderContinue = 1;
+      }
+      else if (Press[down]) {
+
+        setScreen("Either", 0, 2, 3, STOP);
+        setCharacter(DOWNWARD, 0, 3);
+
+        setScreen("      ", 0, 0, 1, STOP);
+        setScreen("        ", 0, 0, 2, STOP);
+
+        GenderChoice = EITHER;
+
+        GenderContinue = 1;
+      }
+    }
+  }
+}
+
+void AbilitySelect() {
+
+  int hold            = 1;
+
+  int AbilityCount[3] = {1, 0, 0};
+
+  clearLine(LCD_Y);
+
+  setScreen("Select Ability", 0, 0, 0, STOP);
+
+  for (i = 0; i < 3; i++) {
+
+    AbilityArray[i] = 0;
+  }
+
+  AbilityCnt = 1;
+  AbilityList[1] = 1;
+
+  if (AbilityTwo[0] == '-') {
+
+    AbilityList[1] = 0;
+  }
+  else {
+
+    AbilityCnt++;
+    AbilityList[1] = 1;
+  }
+
+  if (AbilityThree[0] == '-') {
+
+    AbilityList[2] = 0;
+  }
+  else {
+
+    AbilityCnt++;
+    AbilityList[2] = 1;
+  }
+
+  if (AbilityCnt == 1) {
+
+    PotentialSelect();
+  }
+  else if (AbilityCnt != 1) {
+
+    lcd.setCursor(2, 1);
+    lcd.print(AbilityOne);
+    setCharacter(UPWARD, 0, 1);
+
+    setCharacter(RIGHTWARD, 0, 2);
+    lcd.setCursor(2, 2);
+
+    if (AbilityTwo[0] != '-' && AbilityThree[0] == '-') {
+
+      lcd.print(AbilityTwo);
+
+      AbilityCount[1] = 1;
+    }
+    else if (AbilityTwo[0] == '-' && AbilityThree[0] != '-') {
+
+      lcd.print(AbilityThree);
+
+      AbilityCount[2] = 1;
+    }
+    else {
+
+      lcd.print(AbilityTwo);
+      lcd.setCursor(2, 3);
+      lcd.print(AbilityThree);
+      setCharacter(DOWNWARD, 0, 3);
+
+      AbilityCount[2] = 1;
+      AbilityCount[3] = 1;
+    }
+
+    for (i = 1; i <= AbilityCnt; i++) {
+
+      setCharacter(ZERO, 19, i);
+    }
+
+    while (hold) {
+
+      button();
+
+      if (Press[up]) {
+
+        AbilityArray[0] = !AbilityArray[0];
+        setCharacter(((AbilityArray[0] + 1) * 2) + 2, 19, 1);
+      }
+      else if (Press[right]) {
+
+        if (AbilityCnt == 2) {
+
+          if (AbilityCount[1]) {
+
+            AbilityArray[1] = !AbilityArray[1];
+            setCharacter(((AbilityArray[1] + 1) * 2) + 2, 19, 2);
+          }
+          else {
+
+            AbilityArray[2] = !AbilityArray[2];
+            setCharacter(((AbilityArray[2] + 1) * 2) + 2, 19, 3);
+          }
+        }
+        else if (AbilityCnt == 3) {
+
+          AbilityArray[1] = !AbilityArray[1];
+          setCharacter(((AbilityArray[1] + 1) * 2) + 2, 19, 2);
+        }
+      }
+      else if (Press[down] && AbilityCnt == 3) {
+
+        AbilityArray[2] = !AbilityArray[2];
+        setCharacter(((AbilityArray[2] + 1) * 2) + 2, 19, 3);
+      }
+      else if (Press[a] && AbilityArray[0] + AbilityArray[1] + AbilityArray[2] > 0) {
+
+        PotentialSelect();
+      }
+      else if (Press[b]) {
+
+        initPreAnalysis();
+      }
+
+      delay(100);
+    }
+  }
+}
+
+void PotentialSelect() {
+
+  int hold        = 1;
+  int PotContinue = 0;
+
+  clearLine(LCD_Y);
+
+  for (i = 0; i < potentialCnt; i++) {
+
+    setScreen(PotentialList[i], 0, 2, i, STOP);
+    setCharacter(i, 0, i);
+  }
+
+  PotentialChoice = 3;
+
+  while (hold) {
+
+    button();
+
+    if (Press[a] && PotContinue) {
+
+      PreAnalysisRoutine();
+    }
+    else if (Press[b]) {
+
+      initPreAnalysis();
+    }
+    else if (Press[up]) {
+
+      PotContinue = 1;
+
+      clearLine(LCD_Y);
+
+      setScreen(PotentialList[0], 0, 2, 0, STOP);
+      setCharacter(UPWARD, 0, 0);
+
+      PotentialChoice = 0;
+    }
+    else if (Press[down]) {
+
+      PotContinue = 1;
+
+      clearLine(LCD_Y);
+
+      setScreen(PotentialList[1], 0, 2, 1, STOP);
+      setCharacter(DOWNWARD, 0, 1);
+
+      PotentialChoice = 1;
+    }
+    else if (Press[left]) {
+
+      PotContinue = 1;
+
+      clearLine(LCD_Y);
+
+      setScreen(PotentialList[2], 0, 2, 2, STOP);
+      setCharacter(LEFTWARD, 0, 2);
+
+      PotentialChoice = 2;
+    }
+    else if (Press[right]) {
+
+      PotContinue = 1;
+
+      clearLine(LCD_Y);
+
+      setScreen(PotentialList[3], 0, 2, 3, STOP);
+      setCharacter(RIGHTWARD, 0, 3);
+
+      PotentialChoice = 3;
+    }
+  }
+}
+
+void PreAnalysisRoutine() {
+
+  int RemainCnt = 0;
+  int Counter   = 0;
+  int keep      = 1;
+
+  clearLine(LCD_Y);
+
+  setScreen("Check How Many?", 0, 0, 0, STOP);
+  selectNumber(3, 7, 2, 0);
+
+  RemainCnt = 100 * SELECT[0] + 10 * SELECT[1] + SELECT[2];
+
+  while (RemainCnt > 0) {
+
+    if (keep) {
+
+      for (i = 0; i < 30; i++) {
+
+        BoxCheck[i] = 0;
+      }
+
+      keep = 0;
+    }
+
+    if (GenderChoice != EITHER) {
+
+      PreGender(Counter);
+    }
+    else if (AbilityCnt > 1) {
+
+      PreAbility(Counter, 1);
+    }
+
+    if (Counter % 6 == 5) {
+
+      Down(push);
+
+      for (i = 0; i < 5; i++) {
+
+        Left(push);
+      }
+    }
+    else if (Counter == 30){
+
+        Counter = 0;
+    }
+    else{
+
+        Right(push);
+    }
+
+    Serial.print(Counter);
+    Serial.print(" ");
+    Serial.println(BoxCheck[Counter]);
+
+    Counter++;
+    RemainCnt--;
+  }
+}
+
+void PreGender(int Counter) {
+
+  int hold            = 1;
+  int GenderContinue  = 0;
+  int GenderValue     = 0;
+
+  clearLine(LCD_Y);
+
+  setScreen("Select Gender", 0, 0, 0, STOP);
+  setScreen("Male", 0, 2, 2, STOP);
+  setScreen("Female", 0, 2, 3, STOP);
+
+  setCharacter(UPWARD, 0, 2);
+  setCharacter(RIGHTWARD, 0, 3);
+
+  while (hold) {
+
+    button();
+
+    if (Press[a] && GenderContinue) {
+
+      hold = 0;
+    }
+    else if (Press[up]) {
+
+      GenderContinue = 1;
+
+      setScreen("Male", 0, 2, 2, STOP);
+      setScreen("        ", 0, 0, 3, STOP);
+      setCharacter(UPWARD, 0, 2);
+
+      GenderValue = MALE;
+    }
+    else if (Press[right]) {
+
+      GenderContinue = 1;
+
+      setScreen("Female", 0, 2, 3, STOP);
+      setScreen("        ", 0, 0, 2, STOP);
+      setCharacter(RIGHTWARD, 0, 3);
+
+      GenderValue = FEMALE;
+    }
+  }
+
+  if (GenderValue == GenderChoice) {
+
+    BoxCheck[Counter] = 0;
+    PreAbility(Counter, 1);
+  }
+  else {
+
+    BoxCheck[Counter] = 1;
+    PreAbility(Counter, 0);
+  }
+}
+
+void PreAbility(int Counter, int Check) {
+
+  int hold            = 1;
+  int AbilityContinue = 0;
+  int AbilityCheck;
+  int AbilitySelection;
+
+  clearLine(LCD_Y);
+
+  if (Check && AbilityCnt > 1) {
+
+    setScreen("Select an Ability", 0, 0, 0, STOP);
+
+    if (AbilityList[1] && AbilityList[2]) {
+
+      lcd.setCursor(2, 1);
+      lcd.print(AbilityOne);
+      lcd.setCursor(2, 2);
+      lcd.print(AbilityTwo);
+      lcd.setCursor(2, 3);
+      lcd.print(AbilityThree);
+
+      setCharacter(UPWARD, 0, 1);
+      setCharacter(RIGHTWARD, 0, 2);
+      setCharacter(DOWNWARD, 0, 3);
+
+      AbilityCheck = 1;
+    }
+    else {
+
+      lcd.setCursor(2, 2);
+      lcd.print(AbilityOne);
+
+      setCharacter(UPWARD, 0, 2);
+      setCharacter(RIGHTWARD, 0, 3);
+
+      lcd.setCursor(2, 3);
+
+      if (AbilityList[1]) {
+
+        lcd.print(AbilityTwo);
+
+        AbilityCheck = 2;
+      }
+      else {
+
+        lcd.print(AbilityThree);
+
+        AbilityCheck = 3;
+      }
+    }
+
+    while (hold) {
+
+      button();
+
+      if (Press[a] && AbilityContinue) {
+
+        hold = 0;
+      }
+      else if (Press[up]) {
+
+        AbilitySelection = 0;
+
+        setScreen("                    ", 0, 0, 2, STOP);
+        setScreen("                    ", 0, 0, 3, STOP);
+
+        if (AbilityCheck == 1) {
+
+          setCharacter(UPWARD, 0, 1);
+          lcd.setCursor(2, 1);
+        }
+        else {
+
+          setCharacter(UPWARD, 0, 2);
+          lcd.setCursor(2, 2);
+        }
+
+        lcd.print(AbilityOne);
+
+        AbilityContinue = 1;
+      }
+      else if (Press[right]) {
+
+        lcd.clear();
+        setScreen("Select an Ability", 0, 0, 0, STOP);
+
+        if (AbilityCheck == 1) {
+
+          AbilitySelection = 1;
+
+          setCharacter(RIGHTWARD, 0, 2);
+          lcd.setCursor(2, 2);
+          lcd.print(AbilityTwo);
+        }
+        else if (AbilityCheck == 2) {
+
+          AbilitySelection = 1;
+
+          setCharacter(RIGHTWARD, 0, 3);
+          lcd.setCursor(2, 3);
+          lcd.print(AbilityTwo);
+        }
+        else if (AbilityCheck == 3) {
+
+          AbilitySelection = 2;
+
+          setCharacter(RIGHTWARD, 0, 3);
+          lcd.setCursor(2, 3);
+          lcd.print(AbilityThree);
+        }
+
+        AbilityContinue = 1;
+      }
+
+      if (AbilityCheck == 1) {
+
+        if (Press[down]) {
+
+          AbilitySelection = 2;
+
+          setScreen("                    ", 0, 0, 1, STOP);
+          setScreen("                    ", 0, 0, 2, STOP);
+
+          setCharacter(DOWNWARD, 0, 3);
+          lcd.setCursor(2, 3);
+          lcd.print(AbilityThree);
+
+          AbilityContinue = 1;
+        }
+      }
+    }
+
+    if (AbilityArray[AbilitySelection]) {
+
+      BoxCheck[Counter] = 0;
+    }
+    else {
+
+      BoxCheck[Counter] = 1;
+    }
+  }
+}
